@@ -1,0 +1,94 @@
+-- =========================================================
+-- BIBLIOTECA ESCOLAR EFT
+-- Script de creación de base de datos y tablas
+-- =========================================================
+
+DROP DATABASE IF EXISTS biblioteca_escolar;
+
+CREATE DATABASE biblioteca_escolar
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
+USE biblioteca_escolar;
+
+
+-- =========================================================
+-- TABLA USUARIOS
+-- =========================================================
+
+CREATE TABLE usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    rut VARCHAR(15) NOT NULL UNIQUE,
+    correo VARCHAR(120) NOT NULL UNIQUE,
+    contrasena VARCHAR(255) NOT NULL,
+    rol ENUM('BIBLIOTECARIO', 'ESTUDIANTE') NOT NULL
+);
+
+
+-- =========================================================
+-- TABLA ESTUDIANTES
+-- =========================================================
+
+CREATE TABLE estudiantes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    rut VARCHAR(15) NOT NULL UNIQUE,
+    curso VARCHAR(50) NOT NULL,
+    correo VARCHAR(120) NOT NULL UNIQUE
+);
+
+
+-- =========================================================
+-- TABLA CATEGORIAS
+-- =========================================================
+
+CREATE TABLE categorias (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL UNIQUE
+);
+
+
+-- =========================================================
+-- TABLA LIBROS
+-- =========================================================
+
+CREATE TABLE libros (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(200) NOT NULL,
+    autor VARCHAR(150) NOT NULL,
+    isbn VARCHAR(20) NOT NULL UNIQUE,
+    editorial VARCHAR(150) NOT NULL,
+    stock INT NOT NULL DEFAULT 0,
+    id_categoria INT NOT NULL,
+
+    CONSTRAINT fk_libro_categoria
+        FOREIGN KEY (id_categoria)
+        REFERENCES categorias(id),
+
+    CONSTRAINT chk_libro_stock
+        CHECK (stock >= 0)
+);
+
+
+-- =========================================================
+-- TABLA PRESTAMOS
+-- =========================================================
+
+CREATE TABLE prestamos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_estudiante INT NOT NULL,
+    id_libro INT NOT NULL,
+    fecha_prestamo DATE NOT NULL,
+    fecha_vencimiento DATE NOT NULL,
+    fecha_devolucion DATE NULL,
+    devuelto BOOLEAN NOT NULL DEFAULT FALSE,
+
+    CONSTRAINT fk_prestamo_estudiante
+        FOREIGN KEY (id_estudiante)
+        REFERENCES estudiantes(id),
+
+    CONSTRAINT fk_prestamo_libro
+        FOREIGN KEY (id_libro)
+        REFERENCES libros(id)
+);
